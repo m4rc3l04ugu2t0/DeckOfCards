@@ -3,10 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./src/global-style/style.css">
     <title>Vite + TS</title>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app" class="w-full h-dvh bg-green-800">
+      <main class="w-full h-dvh">
+        <section id="player1" class="w-full self-start border-red-100 border-2 flex gap-4 items-center justify-center">
+     
+        </section>
+        <section class="">
+          <div class="w-28 h-56 bg-black absolute transform -translate-x-1/2 -translate-y-1/2 top-1/2 left-1/2"></div>
+        </section>
+        <section id="player2" class="w-full self-end border-red-100 border-2 flex gap-4 items-center justify-center m-auto absolute bottom-0">
+         
+        </section>
+      </main>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

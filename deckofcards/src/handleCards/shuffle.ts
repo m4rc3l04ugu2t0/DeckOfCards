@@ -8,8 +8,8 @@ type shuffletype = {
 }
 export const shuffle = async () => {
   try {
-    const response = await axios.get<shuffletype[]>(
-      'https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1'
+    const response = await axios.get<shuffletype>(
+      'https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=2'
     )
 
     return await response.data

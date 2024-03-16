@@ -1,3 +1,5 @@
-import { shuffle } from './api/shuffle'
+import { deckPlayer1 } from './players/player1'
+import { deckPlayer2 } from './players/player2'
 
-console.log(shuffle())
+deckPlayer1()
+deckPlayer2()
