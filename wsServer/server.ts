@@ -10,22 +10,51 @@ server.listen(3000, () => {
   console.log('http://localhost:3000')
 })
 
-const players: WebSocket[] = []
+let players = []
+console.log(players)
 
-wss.on('connection', (ws) => {
-  players.push(ws)
+wss.on('connection', (ws, req) => {
+  const userId = req.headers['sec-websocket-key']
+
+  players.push({
+    userId,
+    status: 'online',
+    totalUsers: wss.clients.size,
+    message: 'players'
+  })
+
+  wss.clients.forEach((client) => {
+    client.send(JSON.stringify({ action: 'players', players }))
+  })
 
   ws.on('message', (msg) => {
     console.log(msg.toString())
   })
-  ws.send('ou')
 
   ws.on('close', () => {
-    console.log('desconected')
+    players = players.filter((player) => player.userId !== userId)
 
-    const index = players.indexOf(ws)
-    if (index !== -1) {
-      players.splice(index, 1)
-    }
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify({ action: 'all', players }))
+      }
+    })
   })
+
+  // sendMessageUser(userId, userId)
 })
+
+function sendMessageUser(userId: number, message: string) {
+  const user = players[userId]
+
+  if (user && user.readyState === WebSocket.OPEN) {
+    user.send(
+      JSON.stringify({
+        userId,
+        status: 'online',
+        totalUsers: wss.clients.size,
+        message: 'single'
+      })
+    )
+  }
+}
