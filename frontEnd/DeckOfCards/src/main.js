@@ -1,20 +1,25 @@
-import { player1 } from './players/player1'
-import { player2 } from './players/player2'
 import './style.css'
 
-const webSocket = new WebSocket('ws://localhost:3000')
+import { connectionSocket } from './socket'
 
-webSocket.onopen = handleSocketOpen
-webSocket.onmessage = handleSocketMessage
+const socket = connectionSocket()
+let player
 
-function handleSocketOpen() {
-  console.log('connected')
-  webSocket.send('cliet')
+socket.on('playing', (message) => {
+  console.log(message)
+  sendMessageServer('sendMessageRoom', message)
+})
+
+socket.on('newMessage', (message) => {
+  console.log(message)
+})
+
+const sendMessageServer = (type, contentMsg) => {
+  console.log('play')
+  socket.emit('game', player)
+  socket.emit(type, contentMsg)
 }
 
-function handleSocketMessage({ data }) {
-  console.log(data)
+document.getElementById('play').onclick = function lookingForCorrespondence() {
+  sendMessageServer('lookingFor', player)
 }
-
-player1()
-player2()
