@@ -1,10 +1,11 @@
 import express from 'express'
 import { createServer } from 'http'
 import { Server, Socket } from 'socket.io'
+import { split } from './split'
 
 const app = express()
 const server = createServer(app)
-const socketIo = new Server(server, {
+export const socketIo = new Server(server, {
   cors: {
     origin: '*'
   }
@@ -52,11 +53,12 @@ socketIo.on('connection', (socket) => {
         console.log(`- Usuário ${usuarioId}`)
       })
     })
-    socketIo.to(roomId).emit('newMessage', { roomId })
+
+    socketIo.to(roomId).emit('newMessage', roomId)
   })
 })
 
-function lookingFor(player: Socket) {
+async function lookingFor(player: Socket) {
   updateStatus(player.id, 'lookingFor')
   let playersLookingFor = players.filter(
     (player) => player.status === 'lookingFor'
@@ -79,6 +81,13 @@ function lookingFor(player: Socket) {
 
   updateStatus(playersLookingFor[0].socket.id, 'playing')
   updateStatus(playersLookingFor[1].socket.id, 'playing')
+
+  const cards1 = await split()
+  const cards2 = await split()
+
+  playersLookingFor[0].socket.emit('cardPlayer', cards1)
+  playersLookingFor[1].socket.emit('cardPlayer', cards2)
+
   playersLookingFor = []
 }
 
