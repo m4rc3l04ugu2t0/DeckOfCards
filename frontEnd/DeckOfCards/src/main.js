@@ -1,17 +1,21 @@
 import './style.css'
 
 import { connectionSocket } from './socket'
+import { player2 } from './players/player2'
 
 const socket = connectionSocket()
 let player
 
 socket.on('playing', (message) => {
-  console.log(message)
   sendMessageServer('sendMessageRoom', message)
 })
 
 socket.on('newMessage', (message) => {
   console.log(message)
+})
+
+socket.on('cardPlayer', (message) => {
+  player2(message)
 })
 
 const sendMessageServer = (type, contentMsg) => {

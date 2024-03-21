@@ -1,8 +1,6 @@
-import { getCards } from '../manageCards/getCards'
 const cardsPlayer2 = document.getElementById('player2')
 
-export const player2 = async () => {
-  const cards = await getCards()
+export const player2 = async (cards) => {
   const images = []
 
   cards.cards.map((card) => {
