@@ -1,8 +1,7 @@
 import { draw } from './draw'
-import { shuffle } from './shuffler'
 
-export const split = async () => {
-  const deck = await shuffle()
-  const cardsSplit = await draw(deck.deck_id, '9')
+export const split = async (deck_id: string, count: string) => {
+  const cardsSplit = await draw(deck_id, count)
+
   return cardsSplit
 }

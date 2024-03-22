@@ -1,7 +1,9 @@
 import express from 'express'
 import { createServer } from 'http'
 import { Server, Socket } from 'socket.io'
-import { split } from './split'
+import { shuffle } from './shuffler'
+import { draw } from './draw'
+import { rest } from './rest'
 
 const app = express()
 const server = createServer(app)
@@ -24,6 +26,13 @@ interface SessionGameProps {
 let players: Player[] = []
 const sessionGame: SessionGameProps = {}
 
+export let deck: {
+  success: boolean
+  deck_id: string
+  shuffled: boolean
+  remaining: number
+}
+
 socketIo.on('connection', (socket) => {
   console.log('connected')
 
@@ -43,13 +52,9 @@ socketIo.on('connection', (socket) => {
     )
 
     if (roomId) {
-      // const kkk1 = socketIo.sockets.sockets.get(roomId?.slice(0, 20))
-      // const kkk2 = socketIo.sockets.sockets.get(roomId?.slice(20, 40))
       const playerRemoveRoom = sessionGame[roomId].find(
         (player) => player.id !== socket.id
       )
-
-      console.log(playerRemoveRoom!.id, ' - ', socket.id)
 
       socket.leave(roomId)
       socketIo
@@ -61,9 +66,18 @@ socketIo.on('connection', (socket) => {
     players = players.filter((player) => player.id !== socket.id)
   })
 
-  socket.on('lookingFor', (message) => {
+  socket.on('lookingFor', async (message) => {
     console.log('lookingFor', message)
-    lookingFor(socket)
+    const resultLookingFor = await lookingFor(socket)
+    const roomId = Object.keys(sessionGame).find((key) =>
+      key.includes(socket.id)
+    )
+
+    if (resultLookingFor && roomId) {
+      const cardsRest = await rest(deck.deck_id)
+      console.log(cardsRest)
+      socketIo.to(roomId).emit('updateRestCards', cardsRest)
+    }
   })
 
   socket.on('sendMessageRoom', (roomId: string) => {
@@ -79,6 +93,10 @@ socketIo.on('connection', (socket) => {
 
     socketIo.to(roomId).emit('newMessage', roomId)
   })
+
+  socket.on('moveCard', (message) => {
+    console.log('move', message)
+  })
 })
 
 async function lookingFor(player: Socket) {
@@ -90,7 +108,8 @@ async function lookingFor(player: Socket) {
   if (playersLookingFor.length <= 1) return
 
   const roomId: string = playersLookingFor[0].id + playersLookingFor[1].id
-
+  deck = await shuffle()
+  console.log(deck)
   sessionGame[roomId] = [
     playersLookingFor[0].socket,
     playersLookingFor[1].socket
@@ -105,14 +124,29 @@ async function lookingFor(player: Socket) {
   updateStatus(playersLookingFor[0].socket.id, 'playing')
   updateStatus(playersLookingFor[1].socket.id, 'playing')
 
-  const cards1 = await split()
-  const cards2 = await split()
+  const cards1 = await draw(deck.deck_id, '9')
+  const cards2 = await draw(deck.deck_id, '9')
+  const cardInitial = await draw(deck.deck_id, '1')
 
-  playersLookingFor[0].socket.emit('cardPlayer', cards1)
-  playersLookingFor[1].socket.emit('cardPlayer', cards2)
+  playersLookingFor[0].socket.emit('cardPlayer', {
+    ...cards1,
+    cardInitial
+  })
+  playersLookingFor[1].socket.emit('cardPlayer', {
+    ...cards2,
+    cardInitial
+  })
 
   playersLookingFor = []
+
+  return true
 }
+
+// async function updateRestCards() {
+//   const restCards = await
+//   console.log('jsjs', deck.deck_id)
+//   return restCards.data
+// }
 
 function updateStatus(playerId: string, status: string) {
   players = players.map((player: Player) => {
