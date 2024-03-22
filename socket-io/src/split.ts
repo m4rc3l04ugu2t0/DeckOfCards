@@ -3,6 +3,6 @@ import { shuffle } from './shuffler'
 
 export const split = async () => {
   const deck = await shuffle()
-  const cardsSplit = await draw(deck.deck_id)
+  const cardsSplit = await draw(deck.deck_id, '9')
   return cardsSplit
 }

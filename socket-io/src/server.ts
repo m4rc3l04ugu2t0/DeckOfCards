@@ -33,8 +33,31 @@ socketIo.on('connection', (socket) => {
     status: 'online'
   })
 
+  socketIo.emit('playersOnline', socketIo.engine.clientsCount)
+
   socket.on('disconnect', () => {
     console.log('disconnected')
+    socketIo.emit('playersOnline', socketIo.engine.clientsCount)
+    const roomId = Object.keys(sessionGame).find((key) =>
+      key.includes(socket.id)
+    )
+
+    if (roomId) {
+      // const kkk1 = socketIo.sockets.sockets.get(roomId?.slice(0, 20))
+      // const kkk2 = socketIo.sockets.sockets.get(roomId?.slice(20, 40))
+      const playerRemoveRoom = sessionGame[roomId].find(
+        (player) => player.id !== socket.id
+      )
+
+      console.log(playerRemoveRoom!.id, ' - ', socket.id)
+
+      socket.leave(roomId)
+      socketIo
+        .to(roomId)
+        .emit('playerDisconnected', 'Seu oponente abandonou o game KKKKKKKK')
+      playerRemoveRoom?.leave(roomId)
+    }
+
     players = players.filter((player) => player.id !== socket.id)
   })
 
