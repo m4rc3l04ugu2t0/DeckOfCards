@@ -53,6 +53,13 @@ const sendMessageServer = (type, contentMsg) => {
   socket.emit(type, contentMsg)
 }
 
+const dropzone = document.querySelector('.dropzone')
+dropzone.addEventListener('drop', (e) => {
+  e.preventDefault()
+  const cardsDropzone = document.querySelectorAll('.dropzone .card')
+  cardsDropzone.forEach((card) => console.log(card))
+})
+
 document.getElementById('play').onclick = function lookingForCorrespondence() {
   if (onlines <= 1) return alert('players onlines insuficiente')
   sendMessageServer('lookingFor', player)
