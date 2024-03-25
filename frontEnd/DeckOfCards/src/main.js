@@ -1,8 +1,10 @@
 import './style.css'
 
 import { player2 } from './players/player2'
-import { moveCard } from './functions/moveCard'
+import { cardCurrent, moveCard } from './functions/moveCard'
 import { io } from 'socket.io-client'
+
+const dropzone = document.querySelector('.dropzone')
 
 const connectionSocket = () => io('http://localhost:3000')
 export const socket = connectionSocket()
@@ -47,17 +49,24 @@ socket.on('cardPlayer', (message) => {
   moveCard()
 })
 
+socket.on('counterattack', (message) => {
+  console.log(message)
+  
+  const cardsDropzone = document.querySelector('.dropzone')
+  cardsDropzone.innerHTML += `<img src="${message}" alt="Card" class="card w-36 h-46" />` 
+})
+
+
 const sendMessageServer = (type, contentMsg) => {
   console.log('play')
   socket.emit('game', player)
   socket.emit(type, contentMsg)
 }
 
-const dropzone = document.querySelector('.dropzone')
 dropzone.addEventListener('drop', (e) => {
   e.preventDefault()
-  const cardsDropzone = document.querySelectorAll('.dropzone .card')
-  cardsDropzone.filter((card) => return card)
+  console.log(cardCurrent)
+  sendMessageServer('playedCard', {sessionGame, card: cardCurrent.src })
 })
 
 document.getElementById('play').onclick = function lookingForCorrespondence() {

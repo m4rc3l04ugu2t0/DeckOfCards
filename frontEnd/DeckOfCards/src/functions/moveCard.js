@@ -1,6 +1,7 @@
+export let cardCurrent = null
+
 export const moveCard = () => {
   const cards = document.querySelectorAll('.card')
-  let cardCurrent = null
 
   cards.forEach((card) => {
     card.addEventListener('dragstart', dragStart)
