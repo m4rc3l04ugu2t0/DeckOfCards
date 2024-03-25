@@ -57,7 +57,7 @@ const dropzone = document.querySelector('.dropzone')
 dropzone.addEventListener('drop', (e) => {
   e.preventDefault()
   const cardsDropzone = document.querySelectorAll('.dropzone .card')
-  cardsDropzone.forEach((card) => console.log(card))
+  cardsDropzone.filter((card) => return card)
 })
 
 document.getElementById('play').onclick = function lookingForCorrespondence() {
