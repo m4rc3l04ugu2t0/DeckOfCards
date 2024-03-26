@@ -4,6 +4,7 @@ import { Server, Socket } from 'socket.io'
 import { shuffle } from './shuffler'
 import { draw } from './draw'
 import { rest } from './rest'
+import { RulesGame } from './rulesGame'
 
 const app = express()
 const server = createServer(app)
@@ -12,6 +13,8 @@ export const socketIo = new Server(server, {
     origin: '*'
   }
 })
+
+const rulesGame = new RulesGame()
 
 interface Player {
   id: string
@@ -63,7 +66,14 @@ socketIo.on('connection', (socket) => {
       playerRemoveRoom?.leave(roomId)
     }
 
+
     players = players.filter((player) => player.id !== socket.id)
+  })
+
+
+  socket.on('playedCard', (message) => {
+    console.log(rulesGame.initialSituation(message.code, socket.id))
+    socket.to(message.sessionGame).emit('counterattack', message.card)
   })
 
   socket.on('lookingFor', async (message) => {
@@ -109,7 +119,7 @@ async function lookingFor(player: Socket) {
 
   const roomId: string = playersLookingFor[0].id + playersLookingFor[1].id
   deck = await shuffle()
-  console.log(deck)
+  console.log(deck) 
   sessionGame[roomId] = [
     playersLookingFor[0].socket,
     playersLookingFor[1].socket
@@ -137,16 +147,12 @@ async function lookingFor(player: Socket) {
     cardInitial
   })
 
+  rulesGame.startGame({ playerId: playersLookingFor[0].socket.id, ...cards1 }, { playerId: playersLookingFor[1].socket.id, ...cards2 }, cardInitial)
+
   playersLookingFor = []
 
   return true
 }
-
-// async function updateRestCards() {
-//   const restCards = await
-//   console.log('jsjs', deck.deck_id)
-//   return restCards.data
-// }
 
 function updateStatus(playerId: string, status: string) {
   players = players.map((player: Player) => {

@@ -24,6 +24,10 @@
     "express": "^4.19.1",
     "prettier": "^3.2.5",
     "socket.io": "^4.7.5",
+    "tsx": "^4.7.1",
     "typescript": "^5.4.3"
+  },
+  "dependencies": {
+    "pnpm": "^8.15.5"
   }
 }
