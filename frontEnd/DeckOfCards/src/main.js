@@ -41,7 +41,7 @@ socket.on('updateRestCards', (message) => {
 
 socket.on('cardPlayer', (message) => {
   player2(message)
-  console.log(message)
+  console.log('cards', message)
   document.getElementById('pile').innerHTML = `
   <img src="${message.cardInitial.cards[0].image}" alt="Carta Inicial" class="card w-36 h-46 order-2">
   `
@@ -65,8 +65,8 @@ const sendMessageServer = (type, contentMsg) => {
 
 dropzone.addEventListener('drop', (e) => {
   e.preventDefault()
-  console.log(cardCurrent)
-  sendMessageServer('playedCard', {sessionGame, card: cardCurrent.src })
+  console.log(cardCurrent.classList[1])
+  sendMessageServer('playedCard', {sessionGame, card: cardCurrent.src, code: cardCurrent.classList[1] })
 })
 
 document.getElementById('play').onclick = function lookingForCorrespondence() {

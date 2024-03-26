@@ -19,7 +19,7 @@ export const player2 = async (cards = false) => {
   count
   cards.cards.map((card) => {
     images.push(
-      `<img src="${card.image}" alt="card image" id="card${count}" class="card w-36 h-46">`
+      `<img src="${card.image}" alt="card image" id="card${count}" class="card ${card.code} w-36 h-46">`
     )
     count++
   })
