@@ -11,6 +11,7 @@ export const socket = connectionSocket()
 export let player
 export let sessionGame
 let onlines
+let cards
 
 socket.on('playing', (message) => {
   sendMessageServer('sendMessageRoom', message)
@@ -42,6 +43,7 @@ socket.on('updateRestCards', (message) => {
 socket.on('cardPlayer', (message) => {
   player2(message)
   console.log('cards', message)
+  cards = message
   document.getElementById('pile').innerHTML = `
   <img src="${message.cardInitial.cards[0].image}" alt="Carta Inicial" class="card w-36 h-46 order-2">
   `
@@ -51,9 +53,9 @@ socket.on('cardPlayer', (message) => {
 
 socket.on('counterattack', (message) => {
   console.log(message)
-  
+
   const cardsDropzone = document.querySelector('.dropzone')
-  cardsDropzone.innerHTML += `<img src="${message}" alt="Card" class="card w-36 h-46" />` 
+  cardsDropzone.innerHTML += `<img src="${message}" alt="Card" class="card w-36 h-46" />`
 })
 
 
@@ -65,8 +67,12 @@ const sendMessageServer = (type, contentMsg) => {
 
 dropzone.addEventListener('drop', (e) => {
   e.preventDefault()
-  console.log(cardCurrent.classList[1])
-  sendMessageServer('playedCard', {sessionGame, card: cardCurrent.src, code: cardCurrent.classList[1] })
+
+  const card = cards.cards.filter((card) => {
+    return card.image === cardCurrent.src
+  })
+
+  sendMessageServer('playedCard', { sessionGame, card })
 })
 
 document.getElementById('play').onclick = function lookingForCorrespondence() {
