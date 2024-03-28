@@ -1,7 +1,6 @@
 import './style.css'
 
-import { socket } from './connect.js'
-import { sendMessageServer } from "./functions/sendMessageServer"
+import { socket, player } from './connect.js'
 
 let onlines
 
@@ -10,9 +9,8 @@ socket.on('playersOnline', (message) => {
   document.getElementById('onlines').textContent = message
 })
 
-document?.getElementById('play').onclick = function lookingForCorrespondence() {
+document.getElementById('play').onclick = function lookingForCorrespondence() {
   if (onlines <= 1) return alert('players onlines insuficiente')
-  window.location.href = '../game.html'
-  sendMessageServer('lookingFor', player)
+  socket.emit('lookingFor', player)
   console.log('aaaaaaaaaaaaaaaaah')
 }

@@ -1,15 +1,12 @@
 import './style.css'
 
-import { socket } from './connect'
 import { player2 } from './players/player2'
 import { cardCurrent, moveCard } from './functions/moveCard'
 import { sendMessageServer } from './functions/sendMessageServer'
 
-const dropzone = document.querySelector('.dropzone')
+import { socket, cards, sessionGame } from './connect'
 
-export let player
-export let sessionGame
-let cards
+const dropzone = document.querySelector('.dropzone')
 
 socket.on('playing', (message) => {
   sendMessageServer('sendMessageRoom', message)
@@ -61,4 +58,4 @@ dropzone?.addEventListener('drop', (e) => {
 
   sendMessageServer('playedCard', { sessionGame, card })
 })
-
+console.log('aaaaaaaaah')
