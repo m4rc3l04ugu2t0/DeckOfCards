@@ -1,25 +1,18 @@
 import './style.css'
 
+import { socket } from './connect'
 import { player2 } from './players/player2'
 import { cardCurrent, moveCard } from './functions/moveCard'
-import { io } from 'socket.io-client'
+import { sendMessageServer } from './functions/sendMessageServer'
 
 const dropzone = document.querySelector('.dropzone')
 
-const connectionSocket = () => io('http://localhost:3000')
-export const socket = connectionSocket()
 export let player
 export let sessionGame
-let onlines
 let cards
 
 socket.on('playing', (message) => {
   sendMessageServer('sendMessageRoom', message)
-})
-
-socket.on('playersOnline', (message) => {
-  onlines = message
-  document.getElementById('onlines').textContent = message
 })
 
 socket.on('playerDisconnected', (message) => {
@@ -59,13 +52,7 @@ socket.on('counterattack', (message) => {
 })
 
 
-const sendMessageServer = (type, contentMsg) => {
-  console.log('play')
-  socket.emit('game', player)
-  socket.emit(type, contentMsg)
-}
-
-dropzone.addEventListener('drop', (e) => {
+dropzone?.addEventListener('drop', (e) => {
   e.preventDefault()
 
   const card = cards.cards.filter((card) => {
@@ -75,8 +62,3 @@ dropzone.addEventListener('drop', (e) => {
   sendMessageServer('playedCard', { sessionGame, card })
 })
 
-document.getElementById('play').onclick = function lookingForCorrespondence() {
-  if (onlines <= 1) return alert('players onlines insuficiente')
-  sendMessageServer('lookingFor', player)
-  console.log('aaaaaaaaaaaaaaaaah')
-}
