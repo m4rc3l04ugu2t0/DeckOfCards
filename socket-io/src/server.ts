@@ -47,6 +47,7 @@ socketIo.on('connection', (socket) => {
 
   socketIo.emit('playersOnline', socketIo.engine.clientsCount)
 
+  console.log('players', players)
   socket.on('disconnect', () => {
     console.log('disconnected')
     socketIo.emit('playersOnline', socketIo.engine.clientsCount)
@@ -155,8 +156,11 @@ async function lookingFor(player: Socket) {
     cardInitial.cards
   )
 
-  playersLookingFor = []
 
+  updateStatus(playersLookingFor[0].socket.id, 'playing')
+  updateStatus(playersLookingFor[1].socket.id, 'playing')
+
+  playersLookingFor = []
   return true
 }
 
@@ -169,6 +173,7 @@ function updateStatus(playerId: string, status: string) {
     }
   })
 }
+
 
 server.listen(3000, () => {
   console.log('server running')
