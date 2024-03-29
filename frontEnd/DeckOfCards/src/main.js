@@ -1,13 +1,20 @@
 import './style.css'
 
+import { io } from 'socket.io-client'
+
 import { player2 } from './players/player2'
 import { cardCurrent, moveCard } from './functions/moveCard'
-import { sendMessageServer } from './functions/sendMessageServer'
-
-import { socket, cards, sessionGame } from './connect'
 
 const dropzone = document.querySelector('.dropzone')
+  
+export let sessionGame
+export let cards
+export let player
+let onlines
 
+export const socket = io('http://localhost:3000')
+
+import './style.css'
 socket.on('playing', (message) => {
   sendMessageServer('sendMessageRoom', message)
 })
@@ -37,7 +44,11 @@ socket.on('cardPlayer', (message) => {
   document.getElementById('pile').innerHTML = `
   <img src="${message.cardInitial.cards[0].image}" alt="Carta Inicial" class="card w-36 h-46 order-2">
   `
-  document.getElementById('restCards').textContent = message.remaining
+
+  document.getElementById('infor').innerHTML = `<p>Cartas restantes no baralho: <span id="restCards">${message.remaining}</span></p>
+  <p>Pontos: <span>0<span></p>
+  <p>Oponente: <span>0</span>
+  `
   moveCard()
 })
 
@@ -48,6 +59,11 @@ socket.on('counterattack', (message) => {
   cardsDropzone.innerHTML += `<img src="${message}" alt="Card" class="card w-36 h-46" />`
 })
 
+export const sendMessageServer = (type, contentMsg) => {
+  console.log('play')
+  socket.emit('game', player)
+  socket.emit(type, contentMsg)
+}
 
 dropzone?.addEventListener('drop', (e) => {
   e.preventDefault()
@@ -59,3 +75,14 @@ dropzone?.addEventListener('drop', (e) => {
   sendMessageServer('playedCard', { sessionGame, card })
 })
 console.log('aaaaaaaaah')
+
+socket.on('playersOnline', (message) => {
+  onlines = message
+  document.getElementById('onlines').textContent = message
+})
+
+document.getElementById('play').onclick = function lookingForCorrespondence() {
+  if (onlines <= 1) return alert('players onlines insuficiente')
+  socket.emit('lookingFor', player)
+  console.log('aaaaaaaaaaaaaaaaah')
+}
