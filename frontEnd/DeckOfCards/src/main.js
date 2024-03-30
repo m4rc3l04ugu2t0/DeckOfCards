@@ -3,14 +3,17 @@ import './style.css'
 import { io } from 'socket.io-client'
 
 import { player2 } from './players/player2'
-import { cardCurrent, moveCard } from './functions/moveCard'
+import { cardCurrent, dragover, moveCard } from './functions/moveCard'
 
 const dropzone = document.querySelector('.dropzone')
+const play = document.getElementById('play')
+const screen = document.getElementById('screen')
 
 export let sessionGame
 export let cards
 export let player
 let onlines
+export let myTurn
 
 export const socket = io('http://localhost:3000')
 
@@ -25,6 +28,7 @@ socket.on('playerDisconnected', (message) => {
   document.getElementById('pile').innerHTML = `
     <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="card w-36 h-46 absolute  -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2">
   `
+  screen.classList.remove('hidden')
   player2()
 })
 
@@ -38,9 +42,8 @@ socket.on('updateRestCards', (message) => {
 })
 
 socket.on('cardInitial', (message) => {
-  console.log(message, 'kooozmzm')   
   document.getElementById('pile').innerHTML = `
-  <img src="${message.cardInitial.cards[0].image}" alt="Carta Inicial" class="card w-36 h-46 order-2">
+  <img src="${message.cards[0].image}" alt="Carta Inicial" class="card w-36 h-46 order-2">
   `
 })
 
@@ -48,17 +51,51 @@ socket.on('cardPlayer', (message) => {
   player2(message)
   console.log('cards', message)
   cards = message
+})
 
-  document.getElementById('infor').innerHTML = `<p>Cartas restantes no baralho: <span id="restCards">${message.remaining}</span></p>
-  <p>Pontos: <span>0<span></p>
-  <p>Oponente: <span>0</span>
+socket.on('yourTime', (message) => {
+  myTurn = message
+  if (myTurn) {
+    document.getElementById('myTurn').textContent = 'Sua Vez'
+    moveCard()
+  } else {
+    document.getElementById('myTurn').textContent = 'Vez do oponente'
+  }
+})
+
+socket.on('alert', (message) => {
+  alert(message)
+})
+
+socket.on('inforPlayer', (message) => {
+  console.log('skssjsj', message)
+  myTurn = message.myTurn
+
+  if (message.myTurn) {
+    moveCard()
+    message.myTurn = 'Sua vez'
+  } else {
+    message.myTurn = 'Vez do Oponente'
+  }
+  document.getElementById('infor').innerHTML = `
+            <h2 class="font-semibold text-2xl  max-[760px]:text-sm ">Informações da partida</h2>
+            <p class="font-normal text-xl max-[760px]:text-sm ">Cartas no baralho: <span id="restCards">0</span></p>
+            <p class="font-normal text-xl max-[760px]:text-sm ">Rodada atual: <span id="myTurn">${message.myTurn}</span></p>
+            <p class="font-normal text-xl max-[760px]:text-sm ">Sua pontuação: <span id="points">0</span></p>
+            <p class="font-normal text-xl max-[760px]:text-sm ">Oponente: <span>0</span></p>
   `
-  moveCard()
 })
 
 socket.on('counterattack', (message) => {
   const cardsDropzone = document.querySelector('.dropzone')
-  cardsDropzone.innerHTML += `<img src="${message}" alt="Card" class="card w-36 h-46" />`
+  console.log(message)
+
+  if (typeof message === 'string') {
+    alert(message)
+    return
+  }
+
+  cardsDropzone.innerHTML += `<img src="${message[0].image}" alt="Card" class="card w-36 h-46" />`
 })
 
 export const sendMessageServer = (type, contentMsg) => {
@@ -67,23 +104,31 @@ export const sendMessageServer = (type, contentMsg) => {
   socket.emit(type, contentMsg)
 }
 
-dropzone?.addEventListener('drop', (e) => {
-  e.preventDefault()
+myTurn
+  ? dropzone?.addEventListener('drop', (e) => {
+      e.preventDefault()
 
-  const card = cards.cards.filter((card) => {
-    return card.image === cardCurrent.src
-  })
+      const card = cards.cards.filter((card) => {
+        return card.image === cardCurrent.src
+      })
 
-  sendMessageServer('playedCard', { sessionGame, card })
-})
+      console.log('kskskskssk', card)
+
+      document.getElementById('myTurn').textContent = 'Vez do Oponente'
+      myTurn = false
+
+      sendMessageServer('playedCard', { sessionGame, card })
+    })
+  : alert('Não é a sua vez')
 
 socket.on('playersOnline', (message) => {
   onlines = message
   document.getElementById('onlines').textContent = message
 })
 
-document.getElementById('play').onclick = function lookingForCorrespondence() {
+play.onclick = function lookingForCorrespondence() {
   if (onlines <= 1) return alert('players onlines insuficiente')
   socket.emit('lookingFor', player)
+  screen.classList.add('hidden')
   console.log('aaaaaaaaaaaaaaaaah')
 }

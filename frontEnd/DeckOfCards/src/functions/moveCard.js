@@ -1,5 +1,25 @@
 export let cardCurrent = null
 
+export const dragover = (e) => {
+  if (cardCurrent) {
+    e.preventDefault()
+    const target = e.target.closest('.dropzone')
+    if (target) {
+      const targetReact = target.getBoundingClientRect()
+      if (cardCurrent !== target) {
+        if (e.clientY > targetReact.top + targetReact.height / 2) {
+          console.log('1')
+          target.appendChild(cardCurrent)
+        } else {
+          console.log('2')
+
+          target.appendChild(cardCurrent, target)
+        }
+      }
+    }
+  }
+}
+
 export const moveCard = () => {
   const cards = document.querySelectorAll('.card')
 
@@ -20,23 +40,5 @@ export const moveCard = () => {
 
   document.addEventListener('dragover', (e) => e.preventDefault())
 
-  document.addEventListener('drop', (e) => {
-    if (cardCurrent) {
-      e.preventDefault()
-      const target = e.target.closest('.dropzone')
-      if (target) {
-        const targetReact = target.getBoundingClientRect()
-        if (cardCurrent !== target) {
-          if (e.clientY > targetReact.top + targetReact.height / 2) {
-            console.log('1')
-            target.appendChild(cardCurrent)
-          } else {
-            console.log('2')
-
-            target.appendChild(cardCurrent, target)
-          }
-        }
-      }
-    }
-  })
+  document.addEventListener('drop', dragover)
 }
