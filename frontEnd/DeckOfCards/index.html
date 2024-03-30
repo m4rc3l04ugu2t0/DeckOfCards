@@ -5,47 +5,52 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite App</title>
   </head>
-  <body>
-    <div id="app" class="w-full h-dvh bg-green-600">
-       <main class="w-full h-full flex flex-col justify-between "> 
-      <section id="player1" class="w-auto border-2 border-gray-100 flex gap-4 items-center justify-center">
-        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46">
-        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46">
-        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46">
-        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46">
-        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46">
-        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46">
-        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46">
-        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46">
-        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46">
+  <body class="w-full h-dvh">
+    <div id="app" class="w-full h-dvh bg-green-600 flex flex-col justify-between ">
+      <section id="player1" class="w-auto border-2 border-gray-100 flex gap-4 items-center justify-center overflow-scroll ">
+        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24 ">
+        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24 ">
+        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24 ">
+        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24 ">
+        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24 ">
+        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24 ">
+        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24 ">
+        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24 ">
+        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24 ">
       </section>
-      <section class="flex flex-grow border-2 border-gray-800 items-center justify-between">
-        <div id="infor" class="flex flex-col">
-            <p>Players Onlines</p>
-            <span id="onlines">0</span>
-            <button id="play" class="p-4 bg-green-500 w-40 rounded-sm">Plays</button>
+      <section class="flex flex-grow border-2 border-gray-800 items-center justify-between relative">
+        <div id="infor" class="w-auto max-md:w-2/5 max-[500px]:w-[250px] max-[500px]:h-auto max-[500px]:p-1 flex flex-col max-[500px]:gap-1 gap-4 p-4 bg-green-500 rounded shadow-black shadow-sm">
+            <h2 class="font-semibold text-2xl  max-[760px]:text-sm ">Informações da partida</h2>
+            <p class="font-normal text-xl max-[760px]:text-sm ">Cartas no baralho: <span id="restCards">0</span></p>
+            <p class="font-normal text-xl max-[760px]:text-sm ">Sua pontuação: <span id="points">0</span></p>
+            <p class="font-normal text-xl max-[760px]:text-sm ">Oponente: <span>0</span></p>
         </div>
+          <div class="w-auto max-sm:w-4/5 p-4 flex flex-col gap-4 rounded bg-green-500 absolute -translate-y-1/2 -translate-x-1/2 top-1/2 left-1/2 shadow-black shadow-sm z-10">
+            <p class="font-semibold text-xl">Thanks for testing this application</p>
+            <p>Players Onlines: <span id="onlines">0</span></p>
+            <button type="button" id="play" class="bg-slate-200 w-2/6 p-2 rounded m-auto hover:bg-slate-100 ">Play</button>
+          </div>
         <div id="pile" class="dropzone w-36 h-46 flex flex-grow items-center justify-center gap-3">
-          <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="card-initial w-36 h-46 ">
+          <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="card-initial w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24 ">
         </div>
           <div class="w-36 h-46 relative bottom-2 border-red ">
-            <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46 absolute  -translate-x-1/2 -translate-y-1/2 right-0.5 top-0.5 shadow-xl shadow-black">
-            <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46 absolute  -translate-x-1/2 -translate-y-1/2 right-1.5 top-1.5">
-            <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46 absolute  -translate-x-1/2 -translate-y-1/2 right-2.5 top-2.5">
-            <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46 absolute  -translate-x-1/2 -translate-y-1/2 right-3.5 top-3.5">
+            <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24 absolute  -translate-x-1/2 -translate-y-1/2 right-0.5 top-0.5 shadow-xl shadow-black">
+            <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24 absolute  -translate-x-1/2 -translate-y-1/2 right-1.5 top-1.5">
+            <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24 absolute  -translate-x-1/2 -translate-y-1/2 right-1.5 top-1.5">
+            <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24 absolute  -translate-x-1/2 -translate-y-1/2 right-1.5 top-1.5">
           </div>
       </section>
-      <section id="player2" class="w-auto border-2 border-gray-100 flex gap-4 items-center justify-center">        
-        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46" id="card1">
-        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46" id="card2">
-        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46" id="card3">
-        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46" id="card4">
-        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46" id="card5">
-        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46" id="card6">
-        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46" id="card7">
-        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46" id="card8">
-        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 h-46" id="card9">
-      </section></main>
+      <section id="player2" class="w-auto border-2 border-gray-100 flex gap-4 items-center justify-center overflow-scroll">        
+        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24" id="card1">
+        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24" id="card1">
+        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24" id="card1">
+        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24" id="card1">
+        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24" id="card1">
+        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24" id="card1">
+        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24" id="card1">
+        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24" id="card1">
+        <img src="https://www.deckofcardsapi.com/static/img/back.png" alt="Verso da Carta" class="w-36 landscape:max-sm:w-16 landscape:max-sm:h-24 h-46 max-md:w-24 max-md:h-30  max-sm:w-16 max-sm:h-24" id="card1">
+      </section>
     </div>
     <script type="module" src="./src/main.js"></script>
   </body>

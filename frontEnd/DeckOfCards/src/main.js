@@ -6,7 +6,7 @@ import { player2 } from './players/player2'
 import { cardCurrent, moveCard } from './functions/moveCard'
 
 const dropzone = document.querySelector('.dropzone')
-  
+
 export let sessionGame
 export let cards
 export let player
@@ -37,13 +37,17 @@ socket.on('updateRestCards', (message) => {
   document.getElementById('restCards').textContent = message.remaining
 })
 
+socket.on('cardInitial', (message) => {
+  console.log(message, 'kooozmzm')   
+  document.getElementById('pile').innerHTML = `
+  <img src="${message.cardInitial.cards[0].image}" alt="Carta Inicial" class="card w-36 h-46 order-2">
+  `
+})
+
 socket.on('cardPlayer', (message) => {
   player2(message)
   console.log('cards', message)
   cards = message
-  document.getElementById('pile').innerHTML = `
-  <img src="${message.cardInitial.cards[0].image}" alt="Carta Inicial" class="card w-36 h-46 order-2">
-  `
 
   document.getElementById('infor').innerHTML = `<p>Cartas restantes no baralho: <span id="restCards">${message.remaining}</span></p>
   <p>Pontos: <span>0<span></p>
@@ -53,8 +57,6 @@ socket.on('cardPlayer', (message) => {
 })
 
 socket.on('counterattack', (message) => {
-  console.log(message)
-
   const cardsDropzone = document.querySelector('.dropzone')
   cardsDropzone.innerHTML += `<img src="${message}" alt="Card" class="card w-36 h-46" />`
 })
@@ -74,7 +76,6 @@ dropzone?.addEventListener('drop', (e) => {
 
   sendMessageServer('playedCard', { sessionGame, card })
 })
-console.log('aaaaaaaaah')
 
 socket.on('playersOnline', (message) => {
   onlines = message

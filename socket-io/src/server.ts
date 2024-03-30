@@ -5,6 +5,7 @@ import { shuffle } from './shuffler'
 import { draw } from './draw'
 import { rest } from './rest'
 import { RulesGame } from './rulesGame'
+import { PlayerRules } from './player'
 
 const app = express()
 const server = createServer(app)
@@ -14,6 +15,11 @@ export const socketIo = new Server(server, {
   }
 })
 
+declare module 'socket.io' {
+  interface Socket {
+    rules: PlayerRules
+  }
+}
 const rulesGame = new RulesGame()
 
 interface Player {
@@ -26,8 +32,8 @@ interface SessionGameProps {
   [key: string]: Socket[]
 }
 
-let players: Player[] = []
-const sessionGame: SessionGameProps = {}
+export let players: Player[] = []
+export const sessionGame: SessionGameProps = {}
 
 export let deck: {
   success: boolean
@@ -36,7 +42,7 @@ export let deck: {
   remaining: number
 }
 
-socketIo.on('connection', (socket) => {
+socketIo.on('connection', (socket: Socket) => {
   console.log('connected')
 
   players.push({
@@ -44,6 +50,10 @@ socketIo.on('connection', (socket) => {
     socket,
     status: 'online'
   })
+
+  const playerRules = new PlayerRules(socket, 'online')
+
+  socket.rules = playerRules
 
   socketIo.emit('playersOnline', socketIo.engine.clientsCount)
 
@@ -77,6 +87,7 @@ socketIo.on('connection', (socket) => {
 
   socket.on('lookingFor', async (message) => {
     console.log('lookingFor', message)
+
     const resultLookingFor = await lookingFor(socket)
     const roomId = Object.keys(sessionGame).find((key) =>
       key.includes(socket.id)
@@ -110,6 +121,7 @@ socketIo.on('connection', (socket) => {
 
 async function lookingFor(player: Socket) {
   updateStatus(player.id, 'lookingFor')
+  player.rules.updateStatus('lookingFor')
   let playersLookingFor = players.filter(
     (player) => player.status === 'lookingFor'
   )
@@ -117,7 +129,15 @@ async function lookingFor(player: Socket) {
   if (playersLookingFor.length <= 1) return
 
   const roomId: string = playersLookingFor[0].id + playersLookingFor[1].id
+
+  playersLookingFor[0].socket.rules.setRoomId(roomId)
+  playersLookingFor[1].socket.rules.setRoomId(roomId)
+
   deck = await shuffle()
+
+  playersLookingFor[0].socket.rules.setDeck(deck)
+  playersLookingFor[1].socket.rules.setDeck(deck)
+
   console.log(deck)
   sessionGame[roomId] = [
     playersLookingFor[0].socket,
@@ -133,27 +153,20 @@ async function lookingFor(player: Socket) {
   updateStatus(playersLookingFor[0].socket.id, 'playing')
   updateStatus(playersLookingFor[1].socket.id, 'playing')
 
+  playersLookingFor[0].socket.rules.updateStatus('playing')
+  playersLookingFor[0].socket.rules.updateStatus('playing')
+
   const cards1 = await draw(deck.deck_id, '9')
   const cards2 = await draw(deck.deck_id, '9')
   const cardInitial = await draw(deck.deck_id, '1')
 
-  playersLookingFor[0].socket.emit('cardPlayer', {
-    ...cards1,
-    cardInitial
-  })
-  playersLookingFor[1].socket.emit('cardPlayer', {
-    ...cards2,
-    cardInitial
-  })
+  playersLookingFor[0].socket.rules.setCards(cards1, cardInitial)
+  playersLookingFor[1].socket.rules.setCards(cards2, cardInitial)
 
-  rulesGame.startGame(
-    {
-      playerId: playersLookingFor[0].socket.id,
-      ...cards1
-    },
-    { playerId: playersLookingFor[1].socket.id, ...cards2 },
-    cardInitial.cards
-  )
+  socketIo.to(roomId).emit('cardInitial', cardInitial)
+
+  playersLookingFor[0].socket.rules.sendCard()
+  playersLookingFor[1].socket.rules.sendCard()
 
   updateStatus(playersLookingFor[0].socket.id, 'playing')
   updateStatus(playersLookingFor[1].socket.id, 'playing')
