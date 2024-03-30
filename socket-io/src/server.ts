@@ -4,7 +4,6 @@ import { Server, Socket } from 'socket.io'
 import { shuffle } from './shuffler'
 import { draw } from './draw'
 import { rest } from './rest'
-import { RulesGame } from './rulesGame'
 import { PlayerRules } from './player'
 
 const app = express()
@@ -20,7 +19,6 @@ declare module 'socket.io' {
     rules: PlayerRules
   }
 }
-const rulesGame = new RulesGame()
 
 interface Player {
   id: string
@@ -80,9 +78,12 @@ socketIo.on('connection', (socket: Socket) => {
   })
 
   socket.on('playedCard', (message) => {
-    console.log(rulesGame.initialSituation(message.card, socket.id))
-    socket.to(message.sessionGame).emit('counterattack', message.card[0].image)
-    rulesGame.console()
+    console.log('ooooooooooooo', socket.rules.currentRule)
+    if (!socket.rules.checkMove()) {
+      return socket.emit('alert', 'Não é a sua vez')
+    }
+    socket.broadcast.to(message.sessionGame).emit('counterattack', message.card)
+    console.log(message)
   })
 
   socket.on('lookingFor', async (message) => {
@@ -147,6 +148,9 @@ async function lookingFor(player: Socket) {
   playersLookingFor[0].socket.join(roomId)
   playersLookingFor[1].socket.join(roomId)
 
+  playersLookingFor[0].socket.rules.adversary = playersLookingFor[1].socket.id
+  playersLookingFor[1].socket.rules.adversary = playersLookingFor[0].socket.id
+
   playersLookingFor[0].socket.emit('playing', roomId)
   playersLookingFor[1].socket.emit('playing', roomId)
 
@@ -168,8 +172,24 @@ async function lookingFor(player: Socket) {
   playersLookingFor[0].socket.rules.sendCard()
   playersLookingFor[1].socket.rules.sendCard()
 
+  playersLookingFor[0].socket.rules.currentRule = [
+    'initialSituation',
+    'initial'
+  ]
+  playersLookingFor[1].socket.rules.currentRule = ['initialSituation', 'second']
+
   updateStatus(playersLookingFor[0].socket.id, 'playing')
   updateStatus(playersLookingFor[1].socket.id, 'playing')
+
+  playersLookingFor[0].socket.emit('inforPlayer', {
+    myTurn: true,
+    cardsRest: 0
+  })
+
+  playersLookingFor[1].socket.emit('inforPlayer', {
+    myTurn: false,
+    cardsRest: 0
+  })
 
   console.log('players', players)
   playersLookingFor = []

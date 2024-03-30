@@ -31,6 +31,8 @@ export class PlayerRules {
   roomId: string
   cards: Card[]
   cardInitial: Card[]
+  currentRule: string[]
+  adversary: string
 
   constructor(socket: Socket, status: string) {
     this.socket = socket
@@ -39,6 +41,22 @@ export class PlayerRules {
     this.deck = {} as DeckPros
     this.cards = {} as Card[]
     this.cardInitial = {} as Card[]
+    this.currentRule = []
+    this.adversary = ''
+  }
+
+  playerOfTheMoment() {
+    this.currentRule[1] = 'myTurn'
+  }
+
+  checkMove() {
+    if (this.currentRule[1] === 'second') {
+      return false
+    }
+
+    this.socket.broadcast.to(this.roomId).emit('yourTime', true)
+
+    return true
   }
 
   sendCard() {
