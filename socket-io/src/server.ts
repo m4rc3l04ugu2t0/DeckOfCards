@@ -78,12 +78,30 @@ socketIo.on('connection', (socket: Socket) => {
   })
 
   socket.on('playedCard', (message) => {
-    console.log('ooooooooooooo', socket.rules.currentRule)
+    socket.rules.myTurn = message.myTurn
+    console.log('ooooooooooooo', socket.rules.myTurn, socket.id)
     if (!socket.rules.checkMove()) {
-      return socket.emit('alert', 'Não é a sua vez')
+      socket.emit('alert', 'Não é a sua vez')
+      return
+    }
+
+    if (!socket.rules.checkCards) {
+      socket.emit('alert', 'Restire uma carta do baralho')
+      return
+    }
+
+    if (!socket.rules.checkSuit(message.card)) {
+      socket.emit(
+        'alert',
+        'Jogue uma carta de mesmo simbolo, ou duas cartas de mesmo valor'
+      )
+      socket.emit('cardsInvalid', socket.rules.cards)
+      return
     }
     socket.broadcast.to(message.sessionGame).emit('counterattack', message.card)
-    console.log(message)
+    socket.rules.playerOfTheMoment()
+    socket.rules.myTurn = false
+    console.log('lsslsllsl', message)
   })
 
   socket.on('lookingFor', async (message) => {
@@ -148,8 +166,8 @@ async function lookingFor(player: Socket) {
   playersLookingFor[0].socket.join(roomId)
   playersLookingFor[1].socket.join(roomId)
 
-  playersLookingFor[0].socket.rules.adversary = playersLookingFor[1].socket.id
-  playersLookingFor[1].socket.rules.adversary = playersLookingFor[0].socket.id
+  playersLookingFor[0].socket.rules.adversary = playersLookingFor[1].socket
+  playersLookingFor[1].socket.rules.adversary = playersLookingFor[0].socket
 
   playersLookingFor[0].socket.emit('playing', roomId)
   playersLookingFor[1].socket.emit('playing', roomId)
@@ -164,19 +182,19 @@ async function lookingFor(player: Socket) {
   const cards2 = await draw(deck.deck_id, '9')
   const cardInitial = await draw(deck.deck_id, '1')
 
-  playersLookingFor[0].socket.rules.setCards(cards1, cardInitial)
-  playersLookingFor[1].socket.rules.setCards(cards2, cardInitial)
+  playersLookingFor[0].socket.rules.setCards(cards1)
+  playersLookingFor[1].socket.rules.setCards(cards2)
 
-  socketIo.to(roomId).emit('cardInitial', cardInitial)
+  playersLookingFor[0].socket.rules.setCardRound(cardInitial.cards)
+  playersLookingFor[1].socket.rules.setCardRound(cardInitial.cards)
+
+  socketIo.to(roomId).emit('cardInitial', cardInitial.cards)
 
   playersLookingFor[0].socket.rules.sendCard()
   playersLookingFor[1].socket.rules.sendCard()
 
-  playersLookingFor[0].socket.rules.currentRule = [
-    'initialSituation',
-    'initial'
-  ]
-  playersLookingFor[1].socket.rules.currentRule = ['initialSituation', 'second']
+  playersLookingFor[0].socket.rules.myTurn = true
+  playersLookingFor[1].socket.rules.myTurn = false
 
   updateStatus(playersLookingFor[0].socket.id, 'playing')
   updateStatus(playersLookingFor[1].socket.id, 'playing')
@@ -191,7 +209,6 @@ async function lookingFor(player: Socket) {
     cardsRest: 0
   })
 
-  console.log('players', players)
   playersLookingFor = []
   return true
 }

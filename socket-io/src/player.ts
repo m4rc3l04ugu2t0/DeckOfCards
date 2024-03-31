@@ -30,9 +30,10 @@ export class PlayerRules {
   deck: DeckPros
   roomId: string
   cards: Card[]
-  cardInitial: Card[]
+  cardRound: Card[]
   currentRule: string[]
-  adversary: string
+  adversary: Socket
+  myTurn: boolean
 
   constructor(socket: Socket, status: string) {
     this.socket = socket
@@ -40,33 +41,43 @@ export class PlayerRules {
     this.roomId = ''
     this.deck = {} as DeckPros
     this.cards = {} as Card[]
-    this.cardInitial = {} as Card[]
+    this.cardRound = {} as Card[]
     this.currentRule = []
-    this.adversary = ''
+    this.adversary = {} as Socket
+    this.myTurn = false
   }
 
   playerOfTheMoment() {
-    this.currentRule[1] = 'myTurn'
+    this.socket.emit('yourTime', false)
+    this.adversary.emit('yourTime', true)
+  }
+
+  checkSuit(card: Card[]) {
+    console.log(this.cardRound)
+    return card[0].suit === this.cardRound[0].suit
+  }
+
+  checkCards() {
+    return this.cards.some((card) => card.suit === this.cardRound[0].suit)
   }
 
   checkMove() {
-    if (this.currentRule[1] === 'second') {
+    if (!this.myTurn) {
       return false
     }
-
-    this.socket.broadcast.to(this.roomId).emit('yourTime', true)
 
     return true
   }
 
   sendCard() {
+    this.playerOfTheMoment
     this.socket.emit('cardPlayer', this.cards)
   }
 
   lookingFor() {
     this.updateStatus('lookingFor')
 
-    console.log(this.socket.id)
+    console.log('id', this.socket.id)
   }
 
   setRoomId(roomId: string) {
@@ -77,9 +88,12 @@ export class PlayerRules {
     this.deck = deckId
   }
 
-  setCards(cards: Card[], cardInitial: Card[]) {
-    this.cardInitial = cardInitial
+  setCards(cards: Card[]) {
     this.cards = cards
+  }
+
+  setCardRound(cardRound: Card[]) {
+    this.cardRound = cardRound
   }
 
   updateStatus(status: string) {
