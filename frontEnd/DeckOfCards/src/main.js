@@ -3,7 +3,7 @@ import './style.css'
 import { io } from 'socket.io-client'
 
 import { player2 } from './players/player2'
-import { cardCurrent, dragover, moveCard } from './functions/moveCard'
+import { cardCurrent, moveCard, removeDragAndDrop } from './functions/moveCard'
 
 const dropzone = document.querySelector('.dropzone')
 const play = document.getElementById('play')
@@ -43,7 +43,7 @@ socket.on('updateRestCards', (message) => {
 
 socket.on('cardInitial', (message) => {
   document.getElementById('pile').innerHTML = `
-  <img src="${message.cards[0].image}" alt="Carta Inicial" class="card w-36 h-46 order-2">
+  <img src="${message[0].image}" alt="Carta Inicial" class="card w-36 h-46 order-2">
   `
 })
 
@@ -54,11 +54,13 @@ socket.on('cardPlayer', (message) => {
 })
 
 socket.on('yourTime', (message) => {
+  console.log(message)
   myTurn = message
   if (myTurn) {
     document.getElementById('myTurn').textContent = 'Sua Vez'
     moveCard()
   } else {
+    removeDragAndDrop()
     document.getElementById('myTurn').textContent = 'Vez do oponente'
   }
 })
@@ -75,7 +77,7 @@ socket.on('inforPlayer', (message) => {
     moveCard()
     message.myTurn = 'Sua vez'
   } else {
-    message.myTurn = 'Vez do Oponente'
+    message.myTurn = 'Vez do oponente'
   }
   document.getElementById('infor').innerHTML = `
             <h2 class="font-semibold text-2xl  max-[760px]:text-sm ">Informações da partida</h2>
@@ -104,22 +106,25 @@ export const sendMessageServer = (type, contentMsg) => {
   socket.emit(type, contentMsg)
 }
 
-myTurn
-  ? dropzone?.addEventListener('drop', (e) => {
-      e.preventDefault()
+socket.on('cardsInvalid', (message) => {
+  console.log(cardCurrent)
+})
 
-      const card = cards.cards.filter((card) => {
-        return card.image === cardCurrent.src
-      })
+dropzone?.addEventListener('drop', (e) => {
+  e.preventDefault()
 
-      console.log('kskskskssk', card)
+  if (!myTurn) return
 
-      document.getElementById('myTurn').textContent = 'Vez do Oponente'
-      myTurn = false
+  const card = cards.cards.filter((card) => {
+    return card.image === cardCurrent.src
+  })
 
-      sendMessageServer('playedCard', { sessionGame, card })
-    })
-  : alert('Não é a sua vez')
+  cards = cards.cards.filter((cardFilter) => {
+    return cardFilter.image !== card.image
+  })
+
+  sendMessageServer('playedCard', { sessionGame, myTurn, card })
+})
 
 socket.on('playersOnline', (message) => {
   onlines = message

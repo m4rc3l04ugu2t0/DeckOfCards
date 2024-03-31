@@ -12,12 +12,21 @@ export const dragover = (e) => {
           target.appendChild(cardCurrent)
         } else {
           console.log('2')
-
           target.appendChild(cardCurrent, target)
         }
       }
     }
   }
+}
+
+function dragStart() {
+  this.classList.add('dragging')
+  cardCurrent = this
+}
+
+function dragEnd() {
+  this.classList.remove('dragging')
+  cardCurrent = null
 }
 
 export const moveCard = () => {
@@ -28,17 +37,18 @@ export const moveCard = () => {
     card.addEventListener('dragend', dragEnd)
   })
 
-  function dragStart() {
-    this.classList.add('dragging')
-    cardCurrent = this
-  }
-
-  function dragEnd() {
-    this.classList.remove('dragging')
-    cardCurrent = null
-  }
-
   document.addEventListener('dragover', (e) => e.preventDefault())
-
   document.addEventListener('drop', dragover)
+}
+
+export const removeDragAndDrop = () => {
+  const cards = document.querySelectorAll('.card')
+
+  cards.forEach((card) => {
+    card.removeEventListener('dragstart', dragStart)
+    card.removeEventListener('dragend', dragEnd)
+  })
+
+  document.removeEventListener('dragover', (e) => e.preventDefault())
+  document.removeEventListener('drop', dragover)
 }
