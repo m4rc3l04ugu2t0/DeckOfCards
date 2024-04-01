@@ -14,6 +14,7 @@ export let cards
 export let player
 let onlines
 export let myTurn
+let playCount
 
 export const socket = io('http://localhost:3000')
 
@@ -55,7 +56,8 @@ socket.on('cardPlayer', (message) => {
 
 socket.on('yourTime', (message) => {
   console.log(message)
-  myTurn = message
+  myTurn = message.myTurn
+  playCount = message.playCount
   if (myTurn) {
     document.getElementById('myTurn').textContent = 'Sua Vez'
     moveCard()
@@ -72,6 +74,7 @@ socket.on('alert', (message) => {
 socket.on('inforPlayer', (message) => {
   console.log('skssjsj', message)
   myTurn = message.myTurn
+  playCount = message.playCount
 
   if (message.myTurn) {
     moveCard()
@@ -100,20 +103,37 @@ socket.on('counterattack', (message) => {
   cardsDropzone.innerHTML += `<img src="${message[0].image}" alt="Card" class="card w-36 h-46" />`
 })
 
+socket.on('cardsInvalid', (message) => {
+  const images = []
+
+  message.cardsRound.map((card) => {
+    images.push(
+      `<img src="${card.image}" alt="card image"  class="card  w-36 h-46">`
+    )
+  })
+
+  document.getElementById('pile').innerHTML = images.join('')
+
+  console.log(message)
+})
+
+socket.on('updateCards', (message) => {
+  cards = message
+  player2(message)
+})
+
 export const sendMessageServer = (type, contentMsg) => {
   console.log('play')
   socket.emit('game', player)
   socket.emit(type, contentMsg)
 }
 
-socket.on('cardsInvalid', (message) => {
-  console.log(cardCurrent)
-})
-
 dropzone?.addEventListener('drop', (e) => {
   e.preventDefault()
 
   if (!myTurn) return
+
+  console.log(cardCurrent)
 
   const card = cards.cards.filter((card) => {
     return card.image === cardCurrent.src

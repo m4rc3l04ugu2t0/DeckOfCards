@@ -19,13 +19,13 @@ export const dragover = (e) => {
   }
 }
 
-function dragStart() {
-  this.classList.add('dragging')
-  cardCurrent = this
+function dragStart(element) {
+  element.classList.add('dragging')
+  cardCurrent = element
 }
 
-function dragEnd() {
-  this.classList.remove('dragging')
+function dragEnd(element) {
+  element.classList.remove('dragging')
   cardCurrent = null
 }
 
@@ -33,8 +33,8 @@ export const moveCard = () => {
   const cards = document.querySelectorAll('.card')
 
   cards.forEach((card) => {
-    card.addEventListener('dragstart', dragStart)
-    card.addEventListener('dragend', dragEnd)
+    card.addEventListener('dragstart', () => dragStart(card))
+    card.addEventListener('dragend', () => dragEnd(card))
   })
 
   document.addEventListener('dragover', (e) => e.preventDefault())
@@ -45,8 +45,8 @@ export const removeDragAndDrop = () => {
   const cards = document.querySelectorAll('.card')
 
   cards.forEach((card) => {
-    card.removeEventListener('dragstart', dragStart)
-    card.removeEventListener('dragend', dragEnd)
+    card.removeEventListener('dragstart', () => dragStart(card))
+    card.removeEventListener('dragend', () => dragEnd(card))
   })
 
   document.removeEventListener('dragover', (e) => e.preventDefault())
