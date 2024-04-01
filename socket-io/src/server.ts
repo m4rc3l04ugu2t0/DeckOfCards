@@ -78,8 +78,12 @@ socketIo.on('connection', (socket: Socket) => {
   })
 
   socket.on('playedCard', (message) => {
-    socket.rules.myTurn = message.myTurn
     console.log('ooooooooooooo', socket.rules.myTurn, socket.id)
+
+    if (socket.rules.playCount > 0) {
+      return 'Você ja jogo'
+    }
+
     if (!socket.rules.checkMove()) {
       socket.emit('alert', 'Não é a sua vez')
       return
@@ -93,15 +97,20 @@ socketIo.on('connection', (socket: Socket) => {
     if (!socket.rules.checkSuit(message.card)) {
       socket.emit(
         'alert',
-        'Jogue uma carta de mesmo simbolo, ou duas cartas de mesmo valor'
+        'Jogue uma carta de mesmo simbolo, ou duas cartas de mesmo valor, caso não tenha nenhuma retire uma carta'
       )
-      socket.emit('cardsInvalid', socket.rules.cards)
+      socket.emit('cardsInvalid', {
+        cards: socket.rules.cards,
+        cardsRound: socket.rules.adversary.rules.cardRound
+      })
       return
     }
-    socket.broadcast.to(message.sessionGame).emit('counterattack', message.card)
     socket.rules.playerOfTheMoment()
-    socket.rules.myTurn = false
-    console.log('lsslsllsl', message)
+    socket.broadcast.to(message.sessionGame).emit('counterattack', message.card)
+    socket.rules.updateCards(message.card)
+    socket.emit('updateCards', socket.rules.cards)
+
+    console.log('lsslsllsl', socket.rules.playCards)
   })
 
   socket.on('lookingFor', async (message) => {
@@ -194,19 +203,23 @@ async function lookingFor(player: Socket) {
   playersLookingFor[1].socket.rules.sendCard()
 
   playersLookingFor[0].socket.rules.myTurn = true
+  playersLookingFor[0].socket.rules.playCount = 0
   playersLookingFor[1].socket.rules.myTurn = false
+  playersLookingFor[1].socket.rules.playCount = 1
 
   updateStatus(playersLookingFor[0].socket.id, 'playing')
   updateStatus(playersLookingFor[1].socket.id, 'playing')
 
   playersLookingFor[0].socket.emit('inforPlayer', {
     myTurn: true,
-    cardsRest: 0
+    cardsRest: 0,
+    playCount: 0
   })
 
   playersLookingFor[1].socket.emit('inforPlayer', {
     myTurn: false,
-    cardsRest: 0
+    cardsRest: 0,
+    playCount: 1
   })
 
   playersLookingFor = []

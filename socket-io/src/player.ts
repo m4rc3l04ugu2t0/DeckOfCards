@@ -13,7 +13,7 @@ interface DeckPros {
 
 export const sessionGame: SessionGameProps = {}
 
-interface Card {
+export interface Card {
   code: string
   image: string
   images: {
@@ -24,32 +24,48 @@ interface Card {
   suit: string
 }
 
+interface ApiResponse {
+  success: boolean
+  deck_id: string
+  cards: Card[]
+  remaining: number
+  playerId: number
+}
+
 export class PlayerRules {
   socket: Socket
   status: string
   deck: DeckPros
   roomId: string
-  cards: Card[]
+  cards: ApiResponse
   cardRound: Card[]
   currentRule: string[]
   adversary: Socket
   myTurn: boolean
+  playCards: Card[]
+  playCount: number
 
   constructor(socket: Socket, status: string) {
     this.socket = socket
     this.status = status
     this.roomId = ''
     this.deck = {} as DeckPros
-    this.cards = {} as Card[]
+    this.cards = {} as ApiResponse
     this.cardRound = {} as Card[]
     this.currentRule = []
     this.adversary = {} as Socket
     this.myTurn = false
+    this.playCount = 0
+    this.playCards = []
   }
 
   playerOfTheMoment() {
-    this.socket.emit('yourTime', false)
-    this.adversary.emit('yourTime', true)
+    this.myTurn = false
+    this.playCount = 1
+    this.adversary.rules.myTurn = true
+    this.adversary.rules.playCount = 0
+    this.socket.emit('yourTime', { myTurn: false, playCount: 1 })
+    this.adversary.emit('yourTime', { myTurn: true, playCount: 0 })
   }
 
   checkSuit(card: Card[]) {
@@ -58,11 +74,11 @@ export class PlayerRules {
   }
 
   checkCards() {
-    return this.cards.some((card) => card.suit === this.cardRound[0].suit)
+    return this.cards.cards.some((card) => card.suit === this.cardRound[0].suit)
   }
 
   checkMove() {
-    if (!this.myTurn) {
+    if (!this.myTurn && this.playCount > 0) {
       return false
     }
 
@@ -70,14 +86,11 @@ export class PlayerRules {
   }
 
   sendCard() {
-    this.playerOfTheMoment
     this.socket.emit('cardPlayer', this.cards)
   }
 
   lookingFor() {
     this.updateStatus('lookingFor')
-
-    console.log('id', this.socket.id)
   }
 
   setRoomId(roomId: string) {
@@ -88,12 +101,22 @@ export class PlayerRules {
     this.deck = deckId
   }
 
-  setCards(cards: Card[]) {
+  setCards(cards: ApiResponse) {
     this.cards = cards
   }
 
   setCardRound(cardRound: Card[]) {
+    this.playCards.push(cardRound[0])
     this.cardRound = cardRound
+  }
+
+  updateCards(receviedCard: Card[]) {
+    console.log('sekkkdkkd', receviedCard)
+
+    const cardsUpdated = this.cards.cards.filter(
+      (card) => card.image !== receviedCard[0].image
+    )
+    this.cards.cards = cardsUpdated
   }
 
   updateStatus(status: string) {
